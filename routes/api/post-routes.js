@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 const sequelize = require('../../config/connection');
 
 // get all users
@@ -15,11 +15,20 @@ router.get('/', (req, res) => {
                 sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
                 'vote_count'
             ]
-    ],
+        ],
         // order posts based on the most recent created_at date
         order: [['created_at', 'DESC']],
         // JOIN to the user table using include
         include: [
+            //include comment model
+            {
+              model: Comment,
+              attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+              include: {
+                model: User,
+                attributes: ['username']
+              }
+            },
             {
                 model: User,
                 attributes: ['username']
@@ -50,6 +59,15 @@ router.get('/:id', (req, res) => {
             ]
         ],
         include: [
+            //include comment model
+            {
+              model: Comment,
+              attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+              include: {
+                model: User,
+                attributes: ['username']
+              }
+            },
             {
                 model: User,
                 attributes: ['username']
