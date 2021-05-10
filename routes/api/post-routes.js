@@ -6,7 +6,16 @@ const sequelize = require('../../config/connection');
 router.get('/', (req, res) => {
     Post.findAll({
         // define attributes
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: [
+            'id', 
+            'post_url', 
+            'title', 
+            'created_at',
+            [
+                sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+                'vote_count'
+            ]
+    ],
         // order posts based on the most recent created_at date
         order: [['created_at', 'DESC']],
         // JOIN to the user table using include
@@ -30,7 +39,16 @@ router.get('/:id', (req, res) => {
         where: {
             id: req.params.id
         },
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: [
+            'id', 
+            'post_url', 
+            'title', 
+            'created_at',
+            [
+                sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+                'vote_count'
+            ]
+        ],
         include: [
             {
                 model: User,
